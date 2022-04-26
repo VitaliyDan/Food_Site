@@ -220,37 +220,41 @@ window.addEventListener('DOMContentLoaded', function () {
         form.addEventListener('submit', (e) => {
             e.preventDefault();
 
-            const request = new XMLHttpRequest();
-            request.open('POST', 'server.php');
-
-            request.setRequestHeader('Content-type','application/json');
-
+            // const request = new XMLHttpRequest();  // oldest version <---
+            // request.open('POST', 'server.php');    // oldest version <---
             let statusMessage = document.createElement('img');
             statusMessage.classList.add('img_form');
             statusMessage.src = message.loading;
             statusMessage.textContent = message.loading;
-             form.append(statusMessage);
-            // form.insertAdjacentElement('afterend',statusMessage);
+            //  form.append(statusMessage); // crash last form. fix code --->
+            form.insertAdjacentElement('afterend', statusMessage);
 
             const formData = new FormData(form);
-            const object ={};
-            formData.forEach(function(value,key){
+
+            // Transform in json 
+            const object = {};
+            formData.forEach(function (value, key) {
                 object[key] = value;
             });
-            request.send(JSON.stringify(object));
 
-
-            request.addEventListener('load', ()=>{
-                if(request.status === 200){
-                    console.log(request.response);
+            fetch('server.php', {
+                    method: "POST",
+                    headers: {
+                        'Content-type': 'application/json',
+                    },
+                    body: JSON.stringify(object)
+                })
+                .then(data => data.text())
+                .then(data => {
+                    console.log(data);
                     showResponseModal(message.success);
                     form.reset();
                     statusMessage.remove();
-                }else{
+                }).catch(() => {
                     showResponseModal(message.failure);
-                }
-            })
-
+                }).finally(() => {
+                    form.reset();
+                })
         });
     }
 
@@ -274,5 +278,7 @@ window.addEventListener('DOMContentLoaded', function () {
             closeModal();
         }, 2000);        
     }
+
+
 
 });
