@@ -1,13 +1,14 @@
-window.addEventListener('DOMContentLoaded', function() {
+'use strict';
+window.addEventListener('DOMContentLoaded', function () {
 
     // Tabs
-    
-	let tabs = document.querySelectorAll('.tabheader__item'),
-		tabsContent = document.querySelectorAll('.tabcontent'),
-		tabsParent = document.querySelector('.tabheader__items');
 
-	function hideTabContent() {
-        
+    let tabs = document.querySelectorAll('.tabheader__item'),
+        tabsContent = document.querySelectorAll('.tabcontent'),
+        tabsParent = document.querySelector('.tabheader__items');
+
+    function hideTabContent() {
+
         tabsContent.forEach(item => {
             item.classList.add('hide');
             item.classList.remove('show', 'fade');
@@ -16,39 +17,39 @@ window.addEventListener('DOMContentLoaded', function() {
         tabs.forEach(item => {
             item.classList.remove('tabheader__item_active');
         });
-	}
+    }
 
-	function showTabContent(i = 0) {
+    function showTabContent(i = 0) {
         tabsContent[i].classList.add('show', 'fade');
         tabsContent[i].classList.remove('hide');
         tabs[i].classList.add('tabheader__item_active');
     }
-    
+
     hideTabContent();
     showTabContent();
 
-	tabsParent.addEventListener('click', function(event) {
-		const target = event.target;
-		if(target && target.classList.contains('tabheader__item')) {
+    tabsParent.addEventListener('click', function (event) {
+        const target = event.target;
+        if (target && target.classList.contains('tabheader__item')) {
             tabs.forEach((item, i) => {
                 if (target == item) {
                     hideTabContent();
                     showTabContent(i);
                 }
             });
-		}
+        }
     });
-    
+
     // Timer
 
-    const deadline = '2022-06-11';
+    const deadline = ''; //set your day
 
     function getTimeRemaining(endtime) {
         const t = Date.parse(endtime) - Date.parse(new Date()),
-            days = Math.floor( (t/(1000*60*60*24)) ),
-            seconds = Math.floor( (t/1000) % 60 ),
-            minutes = Math.floor( (t/1000/60) % 60 ),
-            hours = Math.floor( (t/(1000*60*60) % 24) );
+            days = Math.floor((t / (1000 * 60 * 60 * 24))),
+            seconds = Math.floor((t / 1000) % 60),
+            minutes = Math.floor((t / 1000 / 60) % 60),
+            hours = Math.floor((t / (1000 * 60 * 60) % 24));
 
         return {
             'total': t,
@@ -59,8 +60,8 @@ window.addEventListener('DOMContentLoaded', function() {
         };
     }
 
-    function getZero(num){
-        if (num >= 0 && num < 10) { 
+    function getZero(num) {
+        if (num >= 0 && num < 10) {
             return '0' + num;
         } else {
             return num;
@@ -116,7 +117,7 @@ window.addEventListener('DOMContentLoaded', function() {
         document.body.style.overflow = 'hidden';
         clearInterval(modalTimerId);
     }
-    
+
     modalCloseBtn.addEventListener('click', closeModal);
 
     modal.addEventListener('click', (e) => {
@@ -126,7 +127,7 @@ window.addEventListener('DOMContentLoaded', function() {
     });
 
     document.addEventListener('keydown', (e) => {
-        if (e.code === "Escape" && modal.classList.contains('show')) { 
+        if (e.code === "Escape" && modal.classList.contains('show')) {
             closeModal();
         }
     });
@@ -142,7 +143,7 @@ window.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('scroll', showModalByScroll);
 
 
-    
+
     class MenuCard {
         constructor(src, alt, title, descr, price, parentSelector) {
             this.src = src;
@@ -152,11 +153,11 @@ window.addEventListener('DOMContentLoaded', function() {
             this.price = price;
             this.parent = document.querySelector(parentSelector);
             this.transfer = 27;
-            this.changeToUAH(); 
+            this.changeToUAH();
         }
 
         changeToUAH() {
-            this.price = this.price * this.transfer; 
+            this.price = this.price * this.transfer;
         }
 
         render() {
@@ -204,4 +205,58 @@ window.addEventListener('DOMContentLoaded', function() {
         ".menu .container"
     ).render();
 
+
+    // forms
+
+    const forms = document.querySelectorAll('form');
+    const message = {
+        loading: 'Загрузка...',
+        success: 'Спасибо! Скоро мы с вами свяжемся',
+        failure: 'Что-то пошло не так...'
+    };
+
+    forms.forEach(item => {
+        postData(item);
+    });
+
+    function postData(form) {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const request = new XMLHttpRequest();
+            request.open('POST', 'server.php');
+
+            request.setRequestHeader('Content-type','application/json');
+
+            let statusMessage = document.createElement('div');
+            statusMessage.classList.add('status');
+            statusMessage.textContent = message.loading;
+            form.append(statusMessage);
+        
+
+            const formData = new FormData(form);
+            const object ={};
+            formData.forEach(function(value,key){
+                object[key] = value;
+            });
+            request.send(JSON.stringify(object));
+
+
+            request.addEventListener('load', ()=>{
+                if(request.status === 200){
+                    console.log(request.response);
+                    statusMessage.textContent = message.success;
+                    form.reset();
+                    setTimeout(() => {
+                        statusMessage.remove();
+                        closeModal();
+
+                    }, 2000);
+                }else{
+                    statusMessage.textContent = message.failure;
+                }
+            })
+
+        });
+    }
 });
