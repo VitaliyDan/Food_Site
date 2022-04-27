@@ -99,7 +99,7 @@ window.addEventListener('DOMContentLoaded', function () {
 
     const modalTimgaltimgrigger = document.querySelectorAll('[data-modal]'),
         modal = document.querySelector('.modal');
-       
+
     modalTimgaltimgrigger.forEach(btn => {
         btn.addEventListener('click', openModal);
     });
@@ -118,7 +118,7 @@ window.addEventListener('DOMContentLoaded', function () {
     }
 
     modal.addEventListener('click', (e) => {
-        if (e.target === modal || e.target.getAttribute('data-close')=="") {
+        if (e.target === modal || e.target.getAttribute('data-close') == "") {
             closeModal();
         }
     });
@@ -138,6 +138,110 @@ window.addEventListener('DOMContentLoaded', function () {
         }
     }
     window.addEventListener('scroll', showModalByScroll);
+
+    //Slider
+    const slides = document.querySelectorAll('.offer__slide'),
+        prev = document.querySelector('.offer__slider-prev'),
+        next = document.querySelector('.offer__slider-next'),
+        total = document.querySelector('#total'),
+        current = document.querySelector('#current'),
+        slidesWrapper = document.querySelector('.offer__slider-wrapper'),
+        width = window.getComputedStyle(slidesWrapper).width,
+        slidesField = document.querySelector('.slider-inner');
+    let slideIndex = 1, offset = 0;
+
+    if (slides.length < 10) {
+        total.textContent = `0${slides.length}`;
+        current.textContent = `0${slideIndex}`;
+    } else {
+        total.textContent = slides.length;
+        current.textContent = slideIndex;
+    }
+
+    slidesField.style.width = 100 * slides.length + '%';
+    slidesWrapper.style.overflow = 'hidden';
+    slides.forEach(slide => {
+        slide.style.width = width;
+    });
+
+    next.addEventListener('click', () => {
+        if (offset == (+width.slice(0, width.length - 2) * (slides.length - 1))) {
+            offset = 0;
+        } else {
+            offset += +width.slice(0, width.length - 2);
+        }
+
+        slidesField.style.transform = `translateX(-${offset}px)`;
+
+        if (slideIndex == slides.length) {
+            slideIndex = 1;
+        } else {
+            slideIndex++;
+        }
+
+        if (slides.length < 10) {
+            current.textContent = `0${slideIndex}`;
+        } else {
+            current.textContent = slideIndex;
+        }
+    });
+
+    prev.addEventListener('click', () => {
+        if (offset == 0) {
+            offset = +width.slice(0, width.length - 2) * (slides.length - 1);
+        } else {
+            offset -= +width.slice(0, width.length - 2);
+        }
+
+        slidesField.style.transform = `translateX(-${offset}px)`;
+
+        if (slideIndex == 1) {
+            slideIndex = slides.length;
+        } else {
+            slideIndex--;
+        }
+
+        if (slides.length < 10) {
+            current.textContent = `0${slideIndex}`;
+        } else {
+            current.textContent = slideIndex;
+        }
+    });
+
+    // if (slides.length < 10) {
+    //     total.textContent = `0${slides.length}`;
+    // } else {
+    //     total.textContent = slides.length;
+    // }
+
+    // function showSlides(n) {
+    //     if (n > slides.length) {
+    //         slideIndex = 1;
+    //     }
+    //     if (n < 1) {
+    //         slideIndex = slides.length;
+    //     }
+
+    //     slides.forEach((item) => item.classList.add('hide'));
+
+    //     slides[slideIndex - 1].classList.remove('hide');
+    //     if (slides.length < 10) {
+    //         current.textContent =  `0${slideIndex}`;
+    //     } else {
+    //         current.textContent =  slideIndex;
+    //     }
+    // }
+    // function plusSlides (n) {
+    //     showSlides(slideIndex += n);
+    // }
+
+    // prev.addEventListener('click', function(){
+    //     plusSlides(-1);
+    // });
+
+    // next.addEventListener('click', function(){
+    //     plusSlides(1);
+    // });
 
     // Menu on daily
 
@@ -175,9 +279,9 @@ window.addEventListener('DOMContentLoaded', function () {
         }
     }
     // request GET
-    async function getRequest (url){
+    async function getRequest(url) {
         const res = await fetch(url);
-        if(!res.ok){
+        if (!res.ok) {
             throw new Error(`bad request on ${url}, status: ${res.status}`);
         }
         return await res.json();
@@ -185,7 +289,13 @@ window.addEventListener('DOMContentLoaded', function () {
 
     axios.get('http://localhost:3000/menu')
         .then(data => {
-            data.data.forEach(({src, altimg, title, descr, price}) => {
+            data.data.forEach(({
+                src,
+                altimg,
+                title,
+                descr,
+                price
+            }) => {
                 new MenuCard(src, altimg, title, descr, price, ".menu .container").render();
             });
         });
@@ -203,7 +313,7 @@ window.addEventListener('DOMContentLoaded', function () {
         BindPost(item);
     });
 
-     const postData = async ( url, data)=> {
+    const postData = async (url, data) => {
         const res = await fetch(url, {
             method: "POST",
             headers: {
@@ -232,7 +342,7 @@ window.addEventListener('DOMContentLoaded', function () {
             // Transform in json 
             const json = JSON.stringify(Object.fromEntries(formData.entries()));
 
-                postData ('http://localhost:3000/requests',json)
+            postData('http://localhost:3000/requests', json)
                 .then(data => {
                     console.log(data);
                     showResponseModal(message.success);
@@ -246,7 +356,7 @@ window.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    function showResponseModal(message){
+    function showResponseModal(message) {
         const prevModal = document.querySelector('.modal__dialog');
         prevModal.classList.add('hide');
         openModal();
@@ -264,6 +374,6 @@ window.addEventListener('DOMContentLoaded', function () {
             prevModal.classList.add('show');
             prevModal.classList.remove('hide');
             closeModal();
-        }, 2000);        
-        }
+        }, 2000);
+    }
 })
