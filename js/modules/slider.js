@@ -105,4 +105,4 @@ function autoSlider(){
     }, 4000);
 }  autoSlider();
 }
-    module.exports = slider;
+export default slider;

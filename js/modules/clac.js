@@ -102,4 +102,4 @@ function webcalc(){
     getDynamicInformation('#age');
  
 }
-    module.exports = webcalc ;
+export default webcalc ;

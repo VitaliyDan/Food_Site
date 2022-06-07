@@ -1,4 +1,5 @@
-function forms(){
+import {closeModal, openModal} from './modal';
+function forms(modalTimerId){
     const forms = document.querySelectorAll('form');
     const message = {
         loading: 'img/forms/spinner.svg',
@@ -56,7 +57,7 @@ function forms(){
     function showResponseModal(message) {
         const prevModal = document.querySelector('.modal__dialog');
         prevModal.classList.add('hide');
-        openModal();
+        openModal('.modal',modalTimerId);
         const createModal = document.createElement('div');
         createModal.classList.add('modal__dialog');
         createModal.innerHTML = `
@@ -70,8 +71,8 @@ function forms(){
             createModal.remove();
             prevModal.classList.add('show');
             prevModal.classList.remove('hide');
-            closeModal();
+            closeModal('.modal');
         }, 2000);
     }
 }
-    module.exports = forms;
+export default forms;
